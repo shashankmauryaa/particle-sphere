@@ -25,7 +25,7 @@ export default function ParticleCanvas({
       // Get container width and make it responsive
       const container = canvas.parentElement;
       const containerWidth = container.clientWidth;
-      const size = Math.min(containerWidth, 1000);
+      const size = Math.min(containerWidth, 700);
       setDimensions({ width: size, height: size });
     };
 
@@ -88,9 +88,6 @@ export default function ParticleCanvas({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     
-    let angleX = 0.002 * rotationSpeed;
-    let angleY = 0.004 * rotationSpeed;
-    
     const render = () => {
       const { width, height } = dimensions;
       ctx.clearRect(0, 0, width, height);
@@ -104,7 +101,6 @@ export default function ParticleCanvas({
 
       if (interactionCoords) {
         // Coords are 0-1, map them to canvas space
-        // To make hand movements natural: x is inverted or direct
         currentInteractionX = interactionCoords.x * width;
         currentInteractionY = interactionCoords.y * height;
       } else if (mouseRef.current.x !== null) {
@@ -221,7 +217,6 @@ export default function ParticleCanvas({
       });
 
       // Depth sorting: Render elements from back (+Z) to front (-Z)
-      // Since positive Z is further away, we sort descending by pz
       projectedParticles.sort((a, b) => b.pz - a.pz);
 
       // Drawing
@@ -233,7 +228,6 @@ export default function ParticleCanvas({
         if (baseRadius <= 0.1) return;
 
         // Determine particle brightness and alpha based on depth
-        // Front-facing are solid, back-facing are translucent
         const minZ = -180;
         const maxZ = 180;
         const depthPercent = (particle.pz - minZ) / (maxZ - minZ); // 0 (front) to 1 (back)
@@ -252,8 +246,6 @@ export default function ParticleCanvas({
           ctx.shadowBlur = 0;
         }
 
-        // Dynamic color mixing with HSL
-        // We parse standard colors to rich HSL gradients
         ctx.fillStyle = getDynamicColor(particleColor, alpha, brightness);
         ctx.fill();
       });
@@ -262,8 +254,8 @@ export default function ParticleCanvas({
       if (mouseRef.current.targetX !== null && mouseRef.current.targetY !== null) {
         ctx.shadowBlur = 10;
         ctx.shadowColor = particleColor;
-        ctx.strokeStyle = `rgba(255, 255, 255, 0.15)`;
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = `rgba(255, 255, 255, 0.12)`;
+        ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.arc(
           mouseRef.current.targetX,
@@ -280,11 +272,11 @@ export default function ParticleCanvas({
         ctx.arc(
           mouseRef.current.targetX,
           mouseRef.current.targetY,
-          5,
+          4,
           0,
           Math.PI * 2
         );
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
         ctx.fill();
         ctx.stroke();
       }
@@ -324,13 +316,11 @@ export default function ParticleCanvas({
 
   // Helper utility to resolve dynamic alpha/brightness values
   const getDynamicColor = (colorHex, alpha, brightness) => {
-    // If standard CSS hex, convert to RGB to append custom alpha
     if (colorHex.startsWith('#')) {
       const r = parseInt(colorHex.slice(1, 3), 16);
       const g = parseInt(colorHex.slice(3, 5), 16);
       const b = parseInt(colorHex.slice(5, 7), 16);
 
-      // Lighten or darken color based on brightness param (depth representation)
       const factor = brightness / 100;
       const finalR = Math.round(r * factor);
       const finalG = Math.round(g * factor);
@@ -342,16 +332,13 @@ export default function ParticleCanvas({
   };
 
   return (
-    <div className="relative w-full overflow-hidden">
+    <div className="canvas-outer">
       <div 
-        className="glass-panel relative overflow-hidden" 
+        className="canvas-container" 
         style={{ 
           width: dimensions.width, 
           height: dimensions.height,
-          border: '1px solid rgba(255, 255, 255, 0.05)',
-          borderRadius: '50%',
-          boxShadow: `inset 0 0 40px rgba(0, 0, 0, 0.6), 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 2px ${particleColor}`,
-          margin: '0 auto',
+          boxShadow: `inset 0 0 40px rgba(0, 0, 0, 0.6), 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 2px ${particleColor}40`,
         }}
       >
         <canvas
@@ -362,14 +349,12 @@ export default function ParticleCanvas({
           onMouseLeave={handleMouseLeave}
           onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseLeave}
-          className="absolute inset-0 cursor-crosshair z-10"
         />
-        {/* Futuristic Background Grids inside the Sphere Container */}
+        {/* Subtle dot grid overlay */}
         <div 
-          className="absolute inset-0 pointer-events-none opacity-10"
+          className="canvas-grid-overlay"
           style={{
             backgroundImage: `radial-gradient(circle, ${particleColor} 1px, transparent 1px)`,
-            backgroundSize: '24px 24px'
           }}
         />
       </div>

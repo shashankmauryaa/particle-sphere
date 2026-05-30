@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, Palette, Eye, RotateCw } from 'lucide-react';
+import { Activity, Palette, Eye, RotateCw, Maximize, Circle } from 'lucide-react';
 
 const PRESET_COLORS = [
   { name: 'Cyan Spark', hex: '#00f0ff', label: 'Cyan' },
@@ -10,10 +10,10 @@ const PRESET_COLORS = [
 ];
 
 const INTERACTION_MODES = [
-  { value: 'repel', label: 'Repel', desc: 'Push particles away' },
-  { value: 'attract', label: 'Attract', desc: 'Draw particles in' },
-  { value: 'swirl', label: 'Swirl', desc: 'Spiral particles around' },
-  { value: 'orbit', label: 'Orbit', desc: 'Rotate in orbits' },
+  { value: 'repel', label: 'Repel' },
+  { value: 'attract', label: 'Attract' },
+  { value: 'swirl', label: 'Swirl' },
+  { value: 'orbit', label: 'Orbit' },
 ];
 
 export default function ControlPanel({
@@ -31,25 +31,23 @@ export default function ControlPanel({
   setParticleSize,
 }) {
   return (
-    <div className="glass-panel p-6 flex flex-col gap-6 w-full max-w-2xl">
+    <div className="glass-panel control-panel">
       
-      {/* Particle Count Controller */}
-      <div className="flex flex-col gap-3">
-        <div className="flex justify-between items-center">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+      {/* Particle Count */}
+      <div className="control-group">
+        <div className="param-header">
+          <label className="control-label">
             <Activity size={12} /> Particle Density
           </label>
-          <span className="text-xs font-mono text-white bg-white/5 px-2 py-1 rounded">
-            {particleCount}
-          </span>
+          <span className="control-value">{particleCount}</span>
         </div>
-        <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
+        <div className="slider-track">
           <div 
-            className="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
+            className="slider-fill"
             style={{
               width: `${((particleCount - 100) / (3000 - 100)) * 100}%`,
               background: particleColor,
-              boxShadow: `0 0 10px ${particleColor}60`
+              boxShadow: `0 0 8px ${particleColor}50`
             }}
           />
           <input
@@ -59,102 +57,99 @@ export default function ControlPanel({
             step="50"
             value={particleCount}
             onChange={(e) => setParticleCount(Number(e.target.value))}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
         </div>
       </div>
 
-      {/* Color Customization */}
-      <div className="flex flex-col gap-3">
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+      {/* Color */}
+      <div className="control-group">
+        <label className="control-label">
           <Palette size={12} /> Color
         </label>
         
-        {/* Preset selections */}
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="color-presets">
           {PRESET_COLORS.map((color) => (
             <button
               key={color.hex}
               onClick={() => setParticleColor(color.hex)}
-              className={`btn-3d px-4 py-2 text-xs font-medium flex items-center justify-center ${particleColor === color.hex ? 'active' : ''}`}
+              className={`btn-3d ${particleColor === color.hex ? 'active' : ''}`}
               style={{
-                color: particleColor === color.hex ? '#ffffff' : '#aaaaaa',
+                color: particleColor === color.hex ? '#fff' : '#aaa',
                 boxShadow: particleColor === color.hex 
-                  ? `0 0 15px ${color.hex}50, inset 0 2px 4px rgba(0,0,0,0.6)` 
+                  ? `0 0 14px ${color.hex}40, inset 0 2px 4px rgba(0,0,0,0.6)` 
                   : undefined,
-                borderColor: particleColor === color.hex ? color.hex : 'rgba(0,0,0,0.8)'
+                borderColor: particleColor === color.hex ? `${color.hex}80` : undefined
               }}
             >
               <span
-                className="inline-block w-2.5 h-2.5 rounded-full mr-2"
-                style={{ backgroundColor: color.hex, boxShadow: `0 0 8px ${color.hex}` }}
+                className="color-dot"
+                style={{ backgroundColor: color.hex, boxShadow: `0 0 6px ${color.hex}` }}
               />
               {color.label}
             </button>
           ))}
         </div>
 
-        {/* Custom hex color input */}
-        <div className="flex items-center justify-center gap-2">
-          <div className="relative">
+        <div className="color-input-group">
+          <div style={{ position: 'relative' }}>
             <input
               type="text"
               value={particleColor.toUpperCase()}
               onChange={(e) => setParticleColor(e.target.value)}
               placeholder="#FFFFFF"
-              className="w-28 text-xs font-mono bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-center focus:outline-none focus:border-white/20 text-white"
+              className="hex-input"
             />
             <input
               type="color"
               value={particleColor}
               onChange={(e) => setParticleColor(e.target.value)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 rounded cursor-pointer border-0 bg-transparent opacity-0"
+              className="color-picker-hidden"
             />
           </div>
         </div>
       </div>
 
-      {/* Interaction Mode Selection */}
-      <div className="flex flex-col gap-3">
-        <label className="text-xs font-semibold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+      {/* Force Mode */}
+      <div className="control-group">
+        <label className="control-label">
           <Eye size={12} /> Force Mode
         </label>
-        <div className="grid grid-cols-4 gap-3">
+        <div className="mode-grid">
           {INTERACTION_MODES.map((mode) => (
             <button
               key={mode.value}
               onClick={() => setInteractionMode(mode.value)}
-              className={`btn-3d p-3 flex items-center justify-center ${interactionMode === mode.value ? 'active' : ''}`}
+              className={`btn-3d ${interactionMode === mode.value ? 'active' : ''}`}
               style={{
-                borderColor: interactionMode === mode.value ? particleColor : 'rgba(0,0,0,0.8)',
+                borderColor: interactionMode === mode.value ? `${particleColor}80` : undefined,
                 boxShadow: interactionMode === mode.value 
-                  ? `0 0 15px ${particleColor}40, inset 0 2px 4px rgba(0,0,0,0.6)` 
+                  ? `0 0 14px ${particleColor}30, inset 0 2px 4px rgba(0,0,0,0.6)` 
                   : undefined,
+                color: interactionMode === mode.value ? '#fff' : '#aaa',
               }}
             >
-              <span className="text-xs font-semibold text-white">{mode.label}</span>
+              {mode.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Physics Sizing Parameters */}
-      <div className="flex flex-col gap-4 pt-4 border-t border-white/5">
-        {/* Speed */}
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-400 font-medium flex items-center gap-2">
-              <RotateCw size={12} /> Rotation Speed
-            </span>
-            <span className="font-mono text-white">{rotationSpeed}x</span>
+      {/* Physics Parameters */}
+      <div className="section-divider">
+
+        {/* Rotation Speed */}
+        <div className="param-row">
+          <div className="param-header">
+            <span className="label"><RotateCw size={12} /> Rotation Speed</span>
+            <span className="value">{rotationSpeed}x</span>
           </div>
-          <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
+          <div className="slider-track">
             <div 
-              className="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
+              className="slider-fill"
               style={{
                 width: `${(rotationSpeed / 8) * 100}%`,
                 background: particleColor,
-                boxShadow: `0 0 10px ${particleColor}60`
+                boxShadow: `0 0 8px ${particleColor}50`
               }}
             />
             <input
@@ -164,24 +159,23 @@ export default function ControlPanel({
               step="0.5"
               value={rotationSpeed}
               onChange={(e) => setRotationSpeed(Number(e.target.value))}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
           </div>
         </div>
 
-        {/* Radius */}
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-400 font-medium">Interaction Radius</span>
-            <span className="font-mono text-white">{interactionRadius}px</span>
+        {/* Interaction Radius */}
+        <div className="param-row">
+          <div className="param-header">
+            <span className="label"><Maximize size={12} /> Interaction Radius</span>
+            <span className="value">{interactionRadius}px</span>
           </div>
-          <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
+          <div className="slider-track">
             <div 
-              className="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
+              className="slider-fill"
               style={{
                 width: `${((interactionRadius - 40) / (300 - 40)) * 100}%`,
                 background: particleColor,
-                boxShadow: `0 0 10px ${particleColor}60`
+                boxShadow: `0 0 8px ${particleColor}50`
               }}
             />
             <input
@@ -191,24 +185,23 @@ export default function ControlPanel({
               step="10"
               value={interactionRadius}
               onChange={(e) => setInteractionRadius(Number(e.target.value))}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
           </div>
         </div>
 
-        {/* Size */}
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between text-xs">
-            <span className="text-gray-400 font-medium">Particle Size</span>
-            <span className="font-mono text-white">{particleSize}px</span>
+        {/* Particle Size */}
+        <div className="param-row">
+          <div className="param-header">
+            <span className="label"><Circle size={12} /> Particle Size</span>
+            <span className="value">{particleSize}px</span>
           </div>
-          <div className="relative h-2 bg-white/5 rounded-full overflow-hidden">
+          <div className="slider-track">
             <div 
-              className="absolute top-0 left-0 h-full rounded-full transition-all duration-300"
+              className="slider-fill"
               style={{
                 width: `${((particleSize - 1) / (8 - 1)) * 100}%`,
                 background: particleColor,
-                boxShadow: `0 0 10px ${particleColor}60`
+                boxShadow: `0 0 8px ${particleColor}50`
               }}
             />
             <input
@@ -218,7 +211,6 @@ export default function ControlPanel({
               step="0.5"
               value={particleSize}
               onChange={(e) => setParticleSize(Number(e.target.value))}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
           </div>
         </div>

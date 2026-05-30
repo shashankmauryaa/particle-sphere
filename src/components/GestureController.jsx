@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { CameraOff, Sparkles, Loader, Hand } from 'lucide-react';
+import { CameraOff, Loader, Hand } from 'lucide-react';
 
 export default function GestureController({
   isActive,
@@ -203,32 +203,34 @@ export default function GestureController({
   };
 
   return (
-    <div className="glass-panel p-5 w-full max-w-2xl flex flex-col items-center">
-      <div className="flex items-center justify-between w-full mb-5">
-        <div className="flex items-center gap-3">
+    <div className="glass-panel gesture-panel">
+      <div className="gesture-header">
+        <div className="gesture-info">
           <div 
-            className="p-2 rounded-lg"
+            className="gesture-icon"
             style={{ 
-              backgroundColor: `${particleColor}15`, 
+              backgroundColor: `${particleColor}12`, 
               color: particleColor,
-              boxShadow: `0 0 15px ${particleColor}30`
+              boxShadow: `0 0 12px ${particleColor}20`
             }}
           >
-            <Hand size={18} />
+            <Hand size={16} />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">Gesture Control</h3>
-            <p className="text-xs text-gray-500">Control with your hand</p>
+            <h3>Gesture Control</h3>
+            <p>Control with your hand</p>
           </div>
         </div>
 
         <button
           onClick={() => onToggle(!isActive)}
-          className={`btn-3d px-4 py-2 text-xs font-semibold transition-all duration-300 ${isActive ? 'active' : ''}`}
+          className={`btn-3d ${isActive ? 'active' : ''}`}
           style={{
-            color: isActive ? particleColor : '#ffffff',
-            borderColor: isActive ? particleColor : 'rgba(0,0,0,0.8)',
-            boxShadow: isActive ? `0 0 15px ${particleColor}40, inset 0 2px 4px rgba(0,0,0,0.6)` : undefined
+            color: isActive ? particleColor : '#aaa',
+            borderColor: isActive ? `${particleColor}80` : undefined,
+            boxShadow: isActive ? `0 0 14px ${particleColor}30, inset 0 2px 4px rgba(0,0,0,0.6)` : undefined,
+            padding: '8px 16px',
+            fontSize: '11px',
           }}
         >
           {isActive ? 'Stop Camera' : 'Enable Camera'}
@@ -236,48 +238,60 @@ export default function GestureController({
       </div>
 
       {isActive && (
-        <div className="relative w-full flex flex-col items-center gap-4">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', width: '100%' }}>
           <div 
-            className="relative w-64 h-48 rounded-xl overflow-hidden bg-black border"
+            className="gesture-preview"
             style={{ 
-              borderColor: handDetected ? particleColor : 'rgba(255, 255, 255, 0.1)',
-              boxShadow: handDetected ? `0 0 25px ${particleColor}40, inset 0 1px 0 rgba(255,255,255,0.1)` : 'inset 0 1px 0 rgba(255,255,255,0.05)',
+              borderColor: handDetected ? particleColor : 'rgba(255, 255, 255, 0.08)',
+              boxShadow: handDetected 
+                ? `0 0 20px ${particleColor}30, inset 0 1px 0 rgba(255,255,255,0.06)` 
+                : 'inset 0 1px 0 rgba(255,255,255,0.03)',
             }}
           >
             <video
               ref={videoRef}
-              className="absolute inset-0 w-full h-full object-cover hidden"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'none' }}
               playsInline
               muted
             />
-
             <canvas
               ref={canvasRef}
               width={256}
               height={192}
-              className="absolute inset-0 w-full h-full object-cover scale-x-[-1]"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }}
             />
-
             {status === 'loading' && (
-              <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center text-center p-4 gap-3">
-                <Loader className="animate-spin" size={24} style={{ color: particleColor }} />
-                <span className="text-xs font-medium text-gray-400">Loading AI engine...</span>
+              <div className="loading-overlay">
+                <Loader className="animate-spin" size={22} style={{ color: particleColor }} />
+                <span>Loading AI engine...</span>
               </div>
             )}
           </div>
 
-          <div className="flex gap-6 text-xs font-medium">
-            <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${handDetected ? 'bg-green-500 animate-pulse' : 'bg-gray-700'}`} />
-              <span className={handDetected ? 'text-green-400' : 'text-gray-600'}>
+          <div className="gesture-status">
+            <div className="status-item">
+              <span 
+                className="status-dot" 
+                style={{ 
+                  backgroundColor: handDetected ? '#22c55e' : '#374151',
+                  boxShadow: handDetected ? '0 0 8px rgba(34, 197, 94, 0.5)' : 'none',
+                  animation: handDetected ? 'pulse-slow 2s infinite' : 'none',
+                }} 
+              />
+              <span style={{ color: handDetected ? '#4ade80' : '#4b5563' }}>
                 {handDetected ? 'Hand Detected' : 'No Hand'}
               </span>
             </div>
-
             {handDetected && (
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${pinchDetected ? 'bg-cyan-400 animate-ping' : 'bg-gray-700'}`} />
-                <span className={pinchDetected ? 'text-cyan-400' : 'text-gray-600'}>
+              <div className="status-item">
+                <span 
+                  className="status-dot" 
+                  style={{ 
+                    backgroundColor: pinchDetected ? '#22d3ee' : '#374151',
+                    boxShadow: pinchDetected ? '0 0 8px rgba(34, 211, 238, 0.5)' : 'none',
+                  }} 
+                />
+                <span style={{ color: pinchDetected ? '#22d3ee' : '#4b5563' }}>
                   {pinchDetected ? 'Pinch Active' : 'Pinch to Attract'}
                 </span>
               </div>
@@ -287,21 +301,21 @@ export default function GestureController({
       )}
 
       {!isActive && status !== 'permission_denied' && (
-        <div className="text-center text-xs text-gray-600 py-3 flex items-center justify-center gap-2">
+        <div className="gesture-idle">
           <CameraOff size={14} />
           <span>Click the button above to enable gesture control</span>
         </div>
       )}
 
       {status === 'permission_denied' && (
-        <div className="mt-3 w-full bg-red-950/30 border border-red-500/20 rounded-lg p-3 text-center">
-          <p className="text-xs text-red-400 leading-relaxed">{errorMessage}</p>
+        <div className="error-box">
+          <p>{errorMessage}</p>
         </div>
       )}
 
       {status === 'error' && status !== 'permission_denied' && (
-        <div className="mt-3 w-full bg-red-950/30 border border-red-500/20 rounded-lg p-3 text-center">
-          <p className="text-xs text-red-400 leading-relaxed">{errorMessage}</p>
+        <div className="error-box">
+          <p>{errorMessage}</p>
         </div>
       )}
     </div>

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import ParticleCanvas from './components/ParticleCanvas';
 import ControlPanel from './components/ControlPanel';
 import GestureController from './components/GestureController';
-import { HelpCircle, Activity, Wand2 } from 'lucide-react';
 
 export default function App() {
   // Configurable States
@@ -29,22 +28,17 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Main App Layout - Center Aligned */}
-      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 relative w-full max-w-7xl mx-auto">
-        
+    <div className="app-container">
+      <main className="app-main">
+
         {/* Header */}
-        <header className="text-center mb-8 z-10 w-full">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-3">
-            Particle Sphere
-          </h1>
-          <p className="text-sm md:text-base text-gray-400 tracking-widest uppercase">
-            Interactive Particle Visualization
-          </p>
+        <header className="app-header">
+          <h1>Particle Sphere</h1>
+          <p className="subtitle">Interactive Particle Visualization</p>
         </header>
 
-        {/* Main Visualizer Container */}
-        <div className="w-full mb-8 z-10 flex items-center justify-center">
+        {/* Sphere — centered on top */}
+        <div className="visualizer-section">
           <ParticleCanvas
             particleCount={particleCount}
             particleColor={particleColor}
@@ -56,48 +50,47 @@ export default function App() {
           />
         </div>
 
-        {/* Controls Container - Centered */}
-        <div className="w-full flex flex-col items-center gap-6 z-10">
-          
-          {/* Settings Config Panel */}
-          <ControlPanel
-            particleCount={particleCount}
-            setParticleCount={setParticleCount}
-            particleColor={particleColor}
-            setParticleColor={setParticleColor}
-            rotationSpeed={rotationSpeed}
-            setRotationSpeed={setRotationSpeed}
-            interactionMode={interactionMode}
-            setInteractionMode={setInteractionMode}
-            interactionRadius={interactionRadius}
-            setInteractionRadius={setInteractionRadius}
-            particleSize={particleSize}
-            setParticleSize={setParticleSize}
-          />
-
-          {/* Gesture webcam tracker controller */}
-          <GestureController
-            isActive={isGestureActive}
-            onToggle={setIsGestureActive}
-            onCoordsUpdate={handleCoordsUpdate}
-            particleColor={particleColor}
-          />
-
-          {/* Instructions */}
-          <div className="text-center text-gray-500 text-sm max-w-md">
-            <p className="mb-2">
-              <span className="text-white font-medium">Hover</span> or <span className="text-white font-medium">drag</span> to interact
-            </p>
-            <p>
-              Enable webcam for <span className="text-white font-medium">gesture control</span> • Pinch to attract
-            </p>
+        {/* Panels side by side: Controls (left) · Gesture (right) */}
+        <div className="panels-row">
+          <div className="panels-row-left">
+            <ControlPanel
+              particleCount={particleCount}
+              setParticleCount={setParticleCount}
+              particleColor={particleColor}
+              setParticleColor={setParticleColor}
+              rotationSpeed={rotationSpeed}
+              setRotationSpeed={setRotationSpeed}
+              interactionMode={interactionMode}
+              setInteractionMode={setInteractionMode}
+              interactionRadius={interactionRadius}
+              setInteractionRadius={setInteractionRadius}
+              particleSize={particleSize}
+              setParticleSize={setParticleSize}
+            />
           </div>
+
+          <div className="panels-row-right">
+            <GestureController
+              isActive={isGestureActive}
+              onToggle={setIsGestureActive}
+              onCoordsUpdate={handleCoordsUpdate}
+              particleColor={particleColor}
+            />
+          </div>
+        </div>
+
+        <div className="instructions">
+          <p>
+            <span className="highlight">Hover</span> or <span className="highlight">drag</span> to interact
+          </p>
+          <p>
+            Enable webcam for <span className="highlight">gesture control</span> · Pinch to attract
+          </p>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full text-center py-4 border-t border-white/5">
-        <p className="text-xs text-gray-600">© 2026 Particle Sphere</p>
+      <footer className="app-footer">
+        <p>© 2026 Particle Sphere</p>
       </footer>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ParticleCanvas from './components/ParticleCanvas';
 import ControlPanel from './components/ControlPanel';
 import GestureController from './components/GestureController';
+import LineWaves from './components/LineWaves';
 
 export default function App() {
   // Configurable States
@@ -29,6 +30,24 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {/* ReactBits Line Waves Background */}
+      <div className="line-waves-bg">
+        <LineWaves
+          speed={0.25}
+          innerLineCount={28}
+          outerLineCount={32}
+          warpIntensity={0.8}
+          rotation={-45}
+          edgeFadeWidth={0.0}
+          colorCycleSpeed={0.6}
+          brightness={0.15}
+          color1="#00f0ff"
+          color2="#9d4edd"
+          color3="#818cf8"
+          enableMouseInteraction={true}
+          mouseInfluence={1.5}
+        />
+      </div>
       <main className="app-main">
 
         {/* Header */}
